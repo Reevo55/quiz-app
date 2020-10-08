@@ -5,6 +5,24 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: rgb(126, 214, 255);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  background: #B24592;
+  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #F15F79, #B24592);
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #F15F79, #B24592);
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+}
+
+@media(max-width: 800px) {
+  body {
+    font-size: 12px;
+  }
 }
 
 code {

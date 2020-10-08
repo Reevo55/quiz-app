@@ -1,8 +1,9 @@
 import React from 'react';
+import classes from './QuizScore.module.css';
 
 function QuizScore(props) {
     return (
-        <h1>Game score is: {props.gameScore}</h1>
+        <h1 className={classes.gameScore}>Game score is: <strong>{props.gameScore}</strong> pkt</h1>
     )
 }
 
