@@ -4,103 +4,109 @@ import QuizScore from './QuizScore/QuizScore'
 import classes from './Quiz.module.css';
 import ReactCSSTransitionGroup from 'react-transition-group';
 import QuizQuestionsCounter from "./QuizQuestionsCounter/QuizQuestionsCounter";
+import { Route, Switch, BrowserRouter as Router, useRef } from 'react-router-dom';
+import queryString from 'query-string';
 
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function Quiz() {
-    const [questions, setQuestions] = useState([]);
+function Quiz(props) {
+    const [questions, setQuestions] = useState(null);
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [score, setScore] = useState(0);
     const [answerFlash, setAnswerFlash] = useState([]);
     const [clickable, setClickable] = useState(true);
-    const amountOfQuestions = 3;
+
 
     useEffect(() => {
-        fetchQuizData()
+        let isMounted = true;
+        const parameters = queryString.parse(props.location.search);
+
+        fetchQuizData(parameters.questions, parameters.category, parameters.difficulty, isMounted)
+
+        return () => { isMounted = false };
     }, [])
 
-    useEffect(() => {
-        console.log("[useEffect Answer flash]")
-        console.log(questions.length)
-        console.log("[useEffect Answer flash]")
-        console.log(answerFlash)
-    }, [answerFlash, questions])
+    useEffect( () => {
+        if (questions !== null && currentQuestion >= questions.length - 1) {
+            summaryOfQuizHandler();
+        }
+    }, [score])
 
     const textSGMLCleaner = (text) => {
         return text.replace(/&quot;/g, '\"').replace(/&#039;/g, '\'');
     }
 
-    const fetchQuizData = () => {
+    const fetchQuizData = (amountOfQuestions, category, difficulty, isMounted) => {
         setCurrentQuestion(0);
-
-        fetch(`https://opentdb.com/api.php?amount=${amountOfQuestions}`)
+        fetch(`https://opentdb.com/api.php?amount=${amountOfQuestions.toLowerCase()}&category=${category.toLowerCase()}&difficulty=${difficulty.toLowerCase()}`)
             .then(response => response.json())
             .then(response => {
-                setQuestions(response['results'])
-                setAnswerFlash(Array(response['results'][0]['incorrect_answers'].length + 1).fill(0));
-            })
-            .catch(error => {
-                fetchQuizData();
+                if (isMounted) {
+                    setQuestions(response['results']);
+                    setAnswerFlash(Array(response['results'][0]['incorrect_answers'].length + 1).fill(0));
+                }
             })
     }
 
     const pickAnswerHandler = async (answer, index) => {
-        console.log("PICK ANSWER HANDLLER")
         setClickable(false);
 
         let currentScore = score;
         if (answer === questions[currentQuestion]['correct_answer']) {
-            await correctAnswerHandler(index);
             currentScore += 1;
+            await correctAnswerHandler(index);
         }
         else {
-            await wrongAnswerHandler(index);
             currentScore -= 1;
+            await wrongAnswerHandler(index);
         }
         await sleep(500);
-        setClickable(true);
-        nextQuestion();
         setScore(currentScore);
+        setClickable(true);
+        nextQuestion(currentScore);
     }
 
     const correctAnswerHandler = async (index) => {
-        console.log("[Correct answer handler] should be 1st")
         let answerArray = [...answerFlash];
         answerArray[index] = 1;
         setAnswerFlash(answerArray);
     }
 
     const wrongAnswerHandler = async (index) => {
-        console.log("[Wrong answer handler] should be 1st")
         let answerArray = [...answerFlash];
         answerArray[index] = -1;
         setAnswerFlash(answerArray);
     }
 
     const nextQuestion = () => {
-        console.log("[nextQuestion] should be 2st")
-
         let currentQuestionIndex = currentQuestion;
         let answerFlashArr = new Array(questions[currentQuestionIndex]['incorrect_answers'].length + 1).fill(0);
 
         currentQuestionIndex += 1;
+        
         setCurrentQuestion(currentQuestionIndex);
         setAnswerFlash(answerFlashArr);
     }
 
+    const summaryOfQuizHandler = () => {
+        props.history.push({
+            pathname: '/summary',
+            search: `?score=${score}`
+        })
+    }
+
     return (
         <div className={classes.Quiz}>
-            {console.log("Cirrent question: " + currentQuestion, "Score: " + score)}
             <h1 className={classes.Title}>Quiz</h1>
-            {questions.length > 0 &&
+            {questions &&
                 <React.Fragment>
                     <h1 className={classes.Question}>{textSGMLCleaner(questions[currentQuestion]['question'])}</h1>
                     <QuizAnswer answerFlashArr={answerFlash} clickable={clickable} clicked={pickAnswerHandler} correctAnswer={questions[currentQuestion]['correct_answer']} incorrectAnswers={questions[currentQuestion]['incorrect_answers']} />
                     <QuizScore gameScore={score} />
-                    <QuizQuestionsCounter currentQuestionIndex={currentQuestion} howManyQuestions={questions.length} />
+                    <QuizQuestionsCounter currentQuestionIndex={currentQuestion + 1} howManyQuestions={questions.length} />
                 </React.Fragment>
             }
         </div>

@@ -1,0 +1,54 @@
+.QuizForm {
+    background-color: transparent;
+    padding: 0rem 1rem;
+    height: 50vh;
+    width: 40vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    color: white;
+}
+
+.Title {
+    text-align: center;
+    font-size: 3rem;
+    height: 10vh;
+    background: #ffe259;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #fbb46d, #ffe259);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #ffa751, #ffe259); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    transform: skew(-20deg)
+}
+
+input {
+    padding: 16px 16px;
+    font-size: 1rem;
+    background-color: rgb(255, 228, 228);
+    border-radius: 16px;
+    margin: 8px 8px;
+    border: none;
+}
+
+input:focus, textarea:focus, select:focus{
+    outline: none;
+}
+
+label {
+    font-size: 2rem;
+    text-align: center;
+    margin: 4px;
+}
+
+.Option {
+    background-color: tomato;
+    border: 1px solid black;
+    padding: .8em 1.4em;
+    background-color:  #b1d6ff;
+}
+
+.Option:hover, .Option:active {
+    background-color: rgb(255, 103, 103);
+}
